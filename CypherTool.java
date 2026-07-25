@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CypherTool {
@@ -81,7 +82,9 @@ public class CypherTool {
             System.out.println("2. Decrypt");
             System.out.print("$> ");
 
-            String line = SCANNER.nextLine().trim();
+            String rawLine = readLineOrNull();
+            if (rawLine == null) return null;
+            String line = rawLine.trim();
             if (isExit(line)) return null;
 
             switch (line) {
@@ -104,7 +107,9 @@ public class CypherTool {
             System.out.println("3. Caesar (custom shift)");
             System.out.print("$> ");
 
-            String line = SCANNER.nextLine().trim();
+            String rawLine = readLineOrNull();
+            if (rawLine == null) return null;
+            String line = rawLine.trim();
             if (isExit(line)) return null;
 
             switch (line) {
@@ -125,7 +130,9 @@ public class CypherTool {
         while (true) {
             System.out.print("Enter shift amount (1-25): ");
 
-            String line = SCANNER.nextLine().trim();
+            String rawLine = readLineOrNull();
+            if (rawLine == null) return null;
+            String line = rawLine.trim();
             if (isExit(line)) return null;
 
             try {
@@ -145,10 +152,30 @@ public class CypherTool {
         while (true) {
             System.out.print("Enter the message: ");
 
-            String rawLine = SCANNER.nextLine();
+            String rawLine = readLineOrNull();
+            if (rawLine == null) return null;
             String trimmed = rawLine.trim();
 
-            if (isExit(trimmed)) return null;
+            if (isExit(trimmed)) {
+                // "exit" is also a perfectly valid message someone might want to encrypt.
+                // Don't silently swallow it as a quit command - ask once, explicitly.
+                System.out.println("Type 'exit' again to quit, or enter a message to continue (it won't be treated as exit this time).");
+                System.out.print("$> ");
+
+                String confirmLine = readLineOrNull();
+                if (confirmLine == null) return null;
+                String confirmTrimmed = confirmLine.trim();
+
+                if (isExit(confirmTrimmed)) return null;
+
+                if (confirmTrimmed.isEmpty()) {
+                    System.out.println("Message cannot be empty. Please try again (or type 'exit' to quit).");
+                    System.out.println();
+                    continue;
+                }
+
+                return confirmTrimmed;
+            }
 
             if (trimmed.isEmpty()) {
                 System.out.println("Message cannot be empty. Please try again (or type 'exit' to quit).");
@@ -162,6 +189,16 @@ public class CypherTool {
 
     private static boolean isExit(String s) {
         return s.equalsIgnoreCase(EXIT_COMMAND);
+    }
+
+    // If the input stream is closed or exhausted (e.g. piped/redirected input running out),
+    // treat it the same as the user typing "exit" instead of letting the exception surface.
+    private static String readLineOrNull() {
+        try {
+            return SCANNER.nextLine();
+        } catch (NoSuchElementException | IllegalStateException e) {
+            return null;
+        }
     }
 
     private static String encrypt(InputData data) {
@@ -192,9 +229,9 @@ public class CypherTool {
     public static String encryptAtbash(String s) {
         StringBuilder sb = new StringBuilder(s.length());
         for (char c : s.toCharArray()) {
-            if (Character.isUpperCase(c)) {
+            if (c >= 'A' && c <= 'Z') {
                 sb.append((char) ('Z' - (c - 'A')));
-            } else if (Character.isLowerCase(c)) {
+            } else if (c >= 'a' && c <= 'z') {
                 sb.append((char) ('z' - (c - 'a')));
             } else {
                 sb.append(c);
@@ -221,9 +258,9 @@ public class CypherTool {
         StringBuilder sb = new StringBuilder(s.length());
 
         for (char c : s.toCharArray()) {
-            if (Character.isUpperCase(c)) {
+            if (c >= 'A' && c <= 'Z') {
                 sb.append((char) ('A' + (c - 'A' + normalizedShift) % 26));
-            } else if (Character.isLowerCase(c)) {
+            } else if (c >= 'a' && c <= 'z') {
                 sb.append((char) ('a' + (c - 'a' + normalizedShift) % 26));
             } else {
                 sb.append(c);
