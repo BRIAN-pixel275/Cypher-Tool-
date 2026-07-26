@@ -52,6 +52,8 @@ public class CypherTool {
         }
     }
 
+    // Input reading methods
+
     public static InputData getInput() {
         InputData data = new InputData();
 
@@ -100,6 +102,8 @@ public class CypherTool {
         }
     }
 
+    // Cypher selection method
+
     private static Cypher readCypher() {
         while (true) {
             System.out.println("Select cypher:");
@@ -126,6 +130,8 @@ public class CypherTool {
             }
         }
     }
+
+    // Shift amount reading method (only relevant for Caesar cipher)
 
     private static Integer readShift() {
         while (true) {
@@ -157,10 +163,12 @@ public class CypherTool {
             if (rawLine == null) return null;
             String trimmed = rawLine.trim();
 
+            // Check for "exit" command before checking for empty message, so that the user can quit even if they accidentally hit enter without typing anything.
+
             if (isExit(trimmed)) {
                 // "exit" is also a perfectly valid message someone might want to encrypt.
                 // Don't silently swallow it as a quit command - ask once, explicitly.
-                System.out.println("Type 'exit' again to quit, or enter a message to continue (it won't be treated as exit this time).");
+                System.out.println("Type 'exit' again to quit, or enter a message to continue.");
                 System.out.print("$> ");
 
                 String confirmLine = readLineOrNull();
@@ -202,6 +210,8 @@ public class CypherTool {
         }
     }
 
+    // Encryption and decryption methods
+
     private static String encrypt(InputData data) {
         return switch (data.cypher) {
             case ROT13 -> encryptRot13(data.message);
@@ -217,7 +227,8 @@ public class CypherTool {
             case CAESAR -> decryptCaesar(data.message, data.shift);
         };
     }
-
+    // Encryption and decryption implementations
+           //Rot13 implementaion
     public static String encryptRot13(String s) {
         return shiftAlphabetic(s, 13);
     }
@@ -226,6 +237,7 @@ public class CypherTool {
         // ROT13 is its own inverse: shifting by 13 twice = shifting by 26 = no change.
         return shiftAlphabetic(s, 13);
     }
+    //Atbash implementation
 
     public static String encryptAtbash(String s) {
         StringBuilder sb = new StringBuilder(s.length());
@@ -246,6 +258,8 @@ public class CypherTool {
         return encryptAtbash(s);
     }
 
+    //Caesar implementation
+             
     public static String encryptCaesar(String s, int shift) {
         return shiftAlphabetic(s, shift);
     }
