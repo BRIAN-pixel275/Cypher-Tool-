@@ -105,7 +105,7 @@ public class CypherTool {
             System.out.println("Select cypher:");
             System.out.println("1. ROT13");
             System.out.println("2. Atbash");
-            System.out.println("3. Caesar (custom shift)");
+            System.out.println("3. Caesar");
             System.out.print("$> ");
 
             String rawLine = readLineOrNull();
