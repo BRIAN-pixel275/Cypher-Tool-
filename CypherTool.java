@@ -3,6 +3,7 @@ import java.util.Scanner;
 
 public class CypherTool {
 
+
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final String EXIT_COMMAND = "exit";
 
